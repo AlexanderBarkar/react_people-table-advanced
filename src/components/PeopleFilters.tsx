@@ -23,14 +23,12 @@ export const PeopleFilters = () => {
     <nav className="panel">
       <p className="panel-heading">Filters</p>
 
-      {/* SEX */}
       <p className="panel-tabs">
         <SearchLink params={{ sex: null }}>All</SearchLink>
         <SearchLink params={{ sex: 'm' }}>Male</SearchLink>
         <SearchLink params={{ sex: 'f' }}>Female</SearchLink>
       </p>
 
-      {/* NAME */}
       <div className="panel-block">
         <input
           className="input"
@@ -47,7 +45,6 @@ export const PeopleFilters = () => {
         />
       </div>
 
-      {/* CENTURIES */}
       <div className="panel-block">
         {[16, 17, 18, 19, 20].map(c => (
           <SearchLink
