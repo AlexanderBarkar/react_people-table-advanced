@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { getPeople } from '../api';
 import { Person } from '../types/Person';
@@ -14,6 +14,7 @@ export const PeoplePage = () => {
   const [error, setError] = useState(false);
 
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { '*': slug } = useParams();
 
   useEffect(() => {
@@ -31,11 +32,18 @@ export const PeoplePage = () => {
     return people.find(p => p.slug === slug) || null;
   }, [people, slug]);
 
+  const handleSelect = (person: Person) => {
+    navigate({
+      pathname: `/people/${person.slug}`,
+      search: searchParams.toString(),
+    });
+  };
+
+  let visiblePeople = [...people];
+
   const query = searchParams.get('query') || '';
   const sex = searchParams.get('sex');
   const centuries = searchParams.getAll('centuries');
-
-  let visiblePeople = [...people];
 
   if (query) {
     const norm = query.toLowerCase();
@@ -62,7 +70,9 @@ export const PeoplePage = () => {
   const sort = searchParams.get('sort');
   const order = searchParams.get('order');
 
-  if (sort) {
+  const allowedSort = ['name', 'sex', 'born', 'died'];
+
+  if (sort && allowedSort.includes(sort)) {
     visiblePeople.sort((a, b) => {
       let result = 0;
 
@@ -97,7 +107,7 @@ export const PeoplePage = () => {
               <PeopleTable
                 people={visiblePeople}
                 selectedPerson={selectedPerson}
-                onSelect={() => {}}
+                onSelect={handleSelect}
               />
             )}
           </div>

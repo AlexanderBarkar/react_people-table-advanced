@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Person } from '../types/Person';
 
 type Props = {
@@ -13,11 +13,16 @@ export const PeopleTable: React.FC<Props> = ({
   selectedPerson,
   onSelect,
 }) => {
+  const [searchParams] = useSearchParams();
+  const search = searchParams.toString();
+
+  const buildTo = (pathname: string) =>
+    search ? { pathname, search } : { pathname };
+
   const getNameColor = (sex: string) =>
     sex === 'f' ? 'has-text-danger' : 'has-text-link';
 
-  const findSlug = (name: string | null) =>
-    people.find(p => p.name === name)?.slug;
+  const findPerson = (name: string | null) => people.find(p => p.name === name);
 
   return (
     <table className="table is-fullwidth" data-cy="peopleTable">
@@ -36,6 +41,9 @@ export const PeopleTable: React.FC<Props> = ({
         {people.map(person => {
           const isSelected = selectedPerson?.slug === person.slug;
 
+          const mother = findPerson(person.motherName);
+          const father = findPerson(person.fatherName);
+
           return (
             <tr
               key={person.slug}
@@ -46,9 +54,8 @@ export const PeopleTable: React.FC<Props> = ({
               {/* NAME */}
               <td>
                 <Link
-                  to={`/people/${person.slug}`}
+                  to={buildTo(`/people/${person.slug}`)}
                   className={getNameColor(person.sex)}
-                  data-cy="personName"
                 >
                   {person.name}
                 </Link>
@@ -60,34 +67,26 @@ export const PeopleTable: React.FC<Props> = ({
 
               {/* MOTHER */}
               <td>
-                {person.motherName ? (
-                  findSlug(person.motherName) ? (
-                    <Link
-                      to={`/people/${findSlug(person.motherName)}`}
-                      className="has-text-danger"
-                    >
-                      {person.motherName}
-                    </Link>
-                  ) : (
-                    person.motherName
-                  )
+                {mother ? (
+                  <Link
+                    to={buildTo(`/people/${mother.slug}`)}
+                    className="has-text-danger"
+                  >
+                    {mother.name}
+                  </Link>
                 ) : (
-                  '-'
+                  person.motherName || '-'
                 )}
               </td>
 
               {/* FATHER */}
               <td>
-                {person.fatherName ? (
-                  findSlug(person.fatherName) ? (
-                    <Link to={`/people/${findSlug(person.fatherName)}`}>
-                      {person.fatherName}
-                    </Link>
-                  ) : (
-                    person.fatherName
-                  )
+                {father ? (
+                  <Link to={buildTo(`/people/${father.slug}`)}>
+                    {father.name}
+                  </Link>
                 ) : (
-                  '-'
+                  person.fatherName || '-'
                 )}
               </td>
             </tr>
